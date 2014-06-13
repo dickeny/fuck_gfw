@@ -1,0 +1,67 @@
+
+proxy_cache_path  /data/cache/nginx  levels=1:2   keys_zone=one:10m max_size=10g;
+proxy_cache_key  "$host$request_uri";
+
+upstream google {
+    server 74.125.224.80:80 max_fails=3;
+    server 74.125.224.81:80 max_fails=3;
+    server 74.125.224.82:80 max_fails=3;
+    server 74.125.224.83:80 max_fails=3;
+    server 74.125.224.84:80 max_fails=3;   
+}
+server {
+    listen 80;
+    server_name google.com *.google.com google.com.hk *.google.com.hk g.cn gmail.com;
+    location / {
+        proxy_pass http://google;
+        proxy_redirect off;
+        proxy_set_header Host           "www.google.com";
+        proxy_set_header User-Agent      $http_user_agent;
+        proxy_set_header X-Real-IP       $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Cookie "PREF=ID=047808f19f6de346:U=0f62f33dd8549d11:FF=2:LD=zh-CN:NW=1:TM=1325338577:LM=1332142444:GM=1:SG=2:S=rE0SyJh2w1IQ-Maw";
+    }
+}
+
+server {
+    listen      443;
+    server_name google.com www.google.com g.cn google.cn;
+    ssl on;
+    ssl_certificate /etc/nginx/ssl/google.com.crt;
+    ssl_certificate_key /etc/nginx/ssl/google.key;
+    location / {
+        proxy_pass http://google;
+        proxy_cache one;
+        proxy_cache_valid  200 302  1h;
+        proxy_cache_valid  404      1m;
+        proxy_set_header Accept-Encoding "";
+        proxy_set_header User-Agent $http_user_agent;
+        proxy_set_header Accept-Language "zh-CN";
+        proxy_set_header User-Agent      $http_user_agent;
+        proxy_set_header X-Real-IP       $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Cookie "PREF=ID=047808f19f6de346:U=0f62f33dd8549d11:FF=2:LD=zh-CN:NW=1:TM=1325338577:LM=1332142444:GM=1:SG=2:S=rE0SyJh2w1IQ-Maw";
+    }
+}
+
+server {
+    listen      443;
+    server_name google.com.hk *.google.com.hk;
+    ssl on;
+    ssl_certificate /etc/nginx/ssl/google.com.hk.crt;
+    ssl_certificate_key /etc/nginx/ssl/google.key;
+    location / {
+        proxy_pass http://google;
+        proxy_cache one;
+        proxy_cache_valid  200 302  1h;
+        proxy_cache_valid  404      1m;
+        proxy_set_header Accept-Encoding "";
+        proxy_set_header User-Agent $http_user_agent;
+        proxy_set_header Accept-Language "zh-CN";
+        proxy_set_header User-Agent      $http_user_agent;
+        proxy_set_header X-Real-IP       $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Cookie "PREF=ID=047808f19f6de346:U=0f62f33dd8549d11:FF=2:LD=zh-CN:NW=1:TM=1325338577:LM=1332142444:GM=1:SG=2:S=rE0SyJh2w1IQ-Maw";
+    }
+}
+
